@@ -54,9 +54,8 @@ export default function AboutPage() {
               Our Mission
             </h3>
             <p className="text-gray-700 leading-relaxed">
-              To improve the quality of life for individuals and communities
-              through compassionate palliative care, environmental stewardship,
-              and access to clean water and sanitation services.
+            To ensure that all people access to quality Palliative Care, 
+            Environment, and Water Sanitation and Hygienic services.
             </p>
           </div>
 
@@ -78,12 +77,11 @@ export default function AboutPage() {
         </h2>
         <ol className="space-y-4 list-decimal list-inside text-gray-700 leading-relaxed">
           <li>
-            To support and link palliative care patients to appropriate health
-            facilities and specialised care organisations.
+           To identify and link Palliative Care patients to Central Hospitals and 
+           other Palliative Care organizations.
           </li>
           <li>
-            To promote access to clean water, proper sanitation, and hygiene
-            practices in underserved communities.
+            To treat and provide patients Emotional and Social Needs.
           </li>
           <li>
             To engage communities in afforestation and environmental

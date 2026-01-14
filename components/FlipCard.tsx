@@ -1,5 +1,7 @@
 "use client";
 
+import styles from "../styles/FlipCard.module.css";
+
 interface FlipCardProps {
   title: string;
   frontText: string;
@@ -12,25 +14,30 @@ export default function FlipCard({
   backText,
 }: FlipCardProps) {
   return (
-    <div className="flip-card">
-      <div className="flip-card-inner">
+    <div className={styles.flipCard}>
+      <div className={styles.flipCardInner}>
         {/* FRONT */}
-        <div className="flip-face flip-front">
-          <h3 className="text-xl font-bold text-emerald-700 mb-4">
+        <div className={`${styles.flipFace} ${styles.flipFront}`}>
+          <h3 className="text-xl font-bold text-emerald-700">
             {title}
           </h3>
-          <p className="text-gray-600 leading-relaxed">{frontText}</p>
-          <span className="mt-6 text-sm text-gray-400">
-          </span>
+          <p className="text-gray-600 leading-relaxed">
+            {frontText}
+          </p>
+          Tap to learn more...
         </div>
 
         {/* BACK */}
-        <div className="flip-face flip-back">
-          <h3 className="text-xl font-bold mb-4">
+        <div className={`${styles.flipFace} ${styles.flipBack}`}>
+          <h3 className="text-xl font-bold">
             {title}
           </h3>
-          <p className="text-emerald-100 leading-relaxed text-sm md:text-base">{backText}</p>
+          <p className="text-emerald-100 leading-relaxed text-sm md:text-base">
+            {backText}
+          </p>
+          Tap to go back
         </div>
+        
       </div>
     </div>
   );
