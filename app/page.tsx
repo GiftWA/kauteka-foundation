@@ -70,7 +70,7 @@ export default function Home() {
   <FlipCard
     title="Clean Water & Sanitation"
     frontText="Access to safe water for every community."
-    backText="We implement sustainable water solutions and hygiene education to improve public health."
+    backText="We implement sustainable water solutions and hygien."
   />
 </div>
 </section>

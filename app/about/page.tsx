@@ -65,8 +65,7 @@ export default function AboutPage() {
               Our Vision
             </h3>
             <p className="text-gray-700 leading-relaxed">
-              A healthy, dignified, and environmentally sustainable society
-              where every person has access to essential care and services.
+              Hygienic environment free from chronic illnesses.
             </p>
           </div>
         </div>

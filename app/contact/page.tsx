@@ -14,7 +14,7 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="mt-6 text-lg text-gray-700 max-w-xl">
-              We’d love to hear from you. Reach out to Kauteka Foundation (KAFO)
+              We would love to hear from you. Reach out to Kauteka Foundation (KAFO)
               for partnerships, support, or any inquiries about our work.
             </p>
 
