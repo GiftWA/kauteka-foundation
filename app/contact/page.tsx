@@ -1,3 +1,4 @@
+import { MapPin, Phone, Mail } from "lucide-react";
 import Image from "next/image";
 
 export default function ContactPage() {
@@ -18,20 +19,35 @@ export default function ContactPage() {
               for partnerships, support, or any inquiries about our work.
             </p>
 
-            {/* Contact Info */}
-            <div className="mt-8 space-y-4 text-gray-800">
-              <p>
-                📍 <span className="font-medium">Location:</span> Enukweni & Mzuzu, Malawi
-              </p>
-              <p>
-                📞 <span className="font-medium">Phone:</span> +265 884 11 54 62
-              </p>
-              <p>
-                ✉️ <span className="font-medium">Email:</span> kauteka.kafo@gmail.com
-              </p>
-            </div>
-          </div>
-        </div>
+          {/* Contact Info */}
+<div className="mt-8 space-y-5 text-gray-800">
+  
+  <div className="flex items-start gap-4">
+    <MapPin className="h-6 w-6 text-emerald-700 mt-1" />
+    <p>
+      <span className="font-medium">Location:</span><br />
+      Enukweni & Mzuzu, Malawi
+    </p>
+  </div>
+
+  <div className="flex items-start gap-4">
+    <Phone className="h-6 w-6 text-emerald-700 mt-1" />
+    <p>
+      <span className="font-medium">Phone:</span><br />
+      +265 884 11 54 62
+    </p>
+  </div>
+
+  <div className="flex items-start gap-4">
+    <Mail className="h-6 w-6 text-emerald-700 mt-1" />
+    <p>
+      <span className="font-medium">Email:</span><br />
+      kauteka.kafo@gmail.com
+    </p>
+  </div>
+  </div>
+  </div>
+  </div>
       </section>
 
       {/* FORM */}
