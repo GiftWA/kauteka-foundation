@@ -29,7 +29,7 @@ export default function Navbar() {
             <img
               src="/logo.png"
               alt="Kauteka Foundation Logo"
-              className="h-12 w-auto rounded-lg bg-white p-1"
+              className="h-19 w-auto rounded-lg bg-white p-1"
             />
             <span className="hidden sm:block text-lg font-semibold text-emerald-700">
               Kauteka Foundation (KAFO)
