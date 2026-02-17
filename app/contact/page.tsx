@@ -2,6 +2,7 @@
 
 import { MapPin, Phone, Mail } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -11,7 +12,7 @@ export default function ContactPage() {
   });
 
   const [error, setError] = useState("");
-  const [sent, setSent] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string) =>
@@ -23,10 +24,10 @@ export default function ContactPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSent(false);
+    setSuccess(false);
 
     if (!form.name || !form.email || !form.message) {
       setError("Please fill in all fields.");
@@ -40,53 +41,62 @@ export default function ContactPage() {
 
     setLoading(true);
 
-    // Simulated send (can be replaced with real email service later)
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-      setForm({ name: "", email: "", message: "" });
-    }, 1200);
+    const { error } = await supabase.from("messages").insert([
+      {
+        name: form.name,
+        email: form.email,
+        message: form.message,
+      },
+    ]);
+
+    setLoading(false);
+
+    if (error) {
+      setError("Something went wrong. Please try again.");
+      console.error(error);
+      return;
+    }
+
+    setSuccess(true);
+    setForm({ name: "", email: "", message: "" });
   };
 
   return (
     <main className="bg-[#F6EACB] min-h-screen">
       
-      {/* HERO */}
       <section className="max-w-7xl mx-auto px-6 pt-20 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          
-          {/* Text */}
           <div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-emerald-900 mb-6">
               Contact Us
             </h1>
-            <p className="mt-6 text-lg text-gray-700 max-w-xl">
+
+            <p className="text-lg text-gray-700 max-w-xl">
               We would love to hear from you. Reach out to Kauteka Foundation (KAFO)
-              for partnerships, support, or any inquiries about our work.
+              for partnerships, support, or inquiries.
             </p>
 
-            {/* Contact Info */}
             <div className="mt-8 space-y-5 text-gray-800">
-              <div className="flex items-start gap-4">
-                <MapPin className="h-6 w-6 text-emerald-700 mt-1" />
+              <div className="flex gap-4">
+                <MapPin className="h-6 w-6 text-emerald-700" />
                 <p>
-                  <span className="font-medium">Location:</span><br />
+                  <strong>Location:</strong><br />
                   Enukweni & Mzuzu, Malawi
                 </p>
               </div>
 
-              <div className="flex items-start gap-4">
-                <Phone className="h-6 w-6 text-emerald-700 mt-1" />
+              <div className="flex gap-4">
+                <Phone className="h-6 w-6 text-emerald-700" />
                 <p>
-                  <span className="font-medium">Phone:</span><br />
+                  <strong>Phone:</strong><br />
                   +265 884 11 54 62
                 </p>
               </div>
 
-              <div className="flex items-start gap-4">
-                <Mail className="h-6 w-6 text-emerald-700 mt-1" />
+              <div className="flex gap-4">
+                <Mail className="h-6 w-6 text-emerald-700" />
                 <p>
-                  <span className="font-medium">Email:</span><br />
+                  <strong>Email:</strong><br />
                   kauteka.kafo@gmail.com
                 </p>
               </div>
@@ -98,39 +108,35 @@ export default function ContactPage() {
       {/* FORM */}
       <section className="max-w-4xl mx-auto px-6 pb-24">
         <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Send Us a Message
-          </h2>
+          <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
 
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 text-red-700">
+            <div className="mb-4 bg-red-50 border border-red-200 p-4 rounded-lg text-red-700">
               {error}
             </div>
           )}
 
-          {sent && (
-            <div className="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 p-4 text-emerald-700">
+          {success && (
+            <div className="mb-4 bg-emerald-50 border border-emerald-200 p-4 rounded-lg text-emerald-700">
               ✅ Message sent successfully. We’ll get back to you soon.
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
+          <form onSubmit={handleSubmit} className="grid gap-6">
             <input
               name="name"
-              type="text"
               placeholder="Your Name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-600 outline-none"
+              className="border rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-600 outline-none"
             />
 
             <input
               name="email"
-              type="email"
               placeholder="Your Email"
               value={form.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-600 outline-none"
+              className="border rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-600 outline-none"
             />
 
             <textarea
@@ -139,13 +145,13 @@ export default function ContactPage() {
               rows={5}
               value={form.message}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-600 outline-none"
+              className="border rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-600 outline-none"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="bg-emerald-700 text-white px-6 py-3 rounded-lg hover:bg-emerald-800 transition w-fit disabled:opacity-50"
+              className="bg-emerald-700 text-white px-6 py-3 rounded-lg hover:bg-emerald-800 transition disabled:opacity-50 w-fit"
             >
               {loading ? "Sending..." : "Send Message"}
             </button>
