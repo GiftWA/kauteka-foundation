@@ -9,6 +9,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,12 +23,7 @@ export default function AdminPage() {
         }
         
         // Fetch messages
-        const messagesRes = await fetch("/api/admin-messages");
-        if (!messagesRes.ok) {
-          throw new Error("Failed to fetch messages");
-        }
-        const data = await messagesRes.json();
-        setMessages(data);
+        await fetchMessages();
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -38,35 +34,87 @@ export default function AdminPage() {
     checkAuth();
   }, [router]);
 
+  const fetchMessages = async () => {
+    try {
+      const messagesRes = await fetch("/api/admin-messages");
+      if (!messagesRes.ok) {
+        throw new Error("Failed to fetch messages");
+      }
+      const data = await messagesRes.json();
+      setMessages(data);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   const handleLogout = async () => {
     if (isLoggingOut) return;
     
     setIsLoggingOut(true);
     try {
-      console.log("Attempting logout...");
-      
       const res = await fetch("/api/admin-logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      console.log("Logout response status:", res.status);
       
-      // Even if the API fails, we should clear local state and redirect
-      // This ensures the user can always logout
-      setMessages([]);
-      
-      // Use window.location for a hard redirect to ensure cookies are cleared
       window.location.href = "/admin/login";
-      
     } catch (error) {
       console.error("Error during logout:", error);
-      // Even on error, redirect to login
       window.location.href = "/admin/login";
     } finally {
       setIsLoggingOut(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this message?")) {
+      return;
+    }
+
+    setDeleting(id);
+    try {
+      const res = await fetch(`/api/admin-messages?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        // Remove the message from the list
+        setMessages(messages.filter((msg: any) => msg.id !== id));
+      } else {
+        alert("Failed to delete message");
+      }
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      alert("An error occurred while deleting");
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm("Are you sure you want to delete ALL messages? This cannot be undone!")) {
+      return;
+    }
+
+    if (!confirm("Really? Delete all messages?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin-messages", {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setMessages([]);
+      } else {
+        alert("Failed to delete all messages");
+      }
+    } catch (error) {
+      console.error("Error deleting all messages:", error);
+      alert("An error occurred while deleting");
     }
   };
 
@@ -109,7 +157,6 @@ export default function AdminPage() {
                 height={48}
                 className="object-contain"
                 onError={(e) => {
-                  // Fallback if logo doesn't load
                   e.currentTarget.style.display = 'none';
                 }}
               />
@@ -130,6 +177,14 @@ export default function AdminPage() {
                 day: 'numeric' 
               })}
             </div>
+            {messages?.length > 0 && (
+              <button
+                onClick={handleDeleteAll}
+                className="px-4 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-xl transition-colors font-medium"
+              >
+                Delete All
+              </button>
+            )}
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
@@ -167,15 +222,33 @@ export default function AdminPage() {
                       {message.email}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap bg-green-50 px-3 py-1 rounded-full border border-green-100">
-                    {new Date(message.created_at).toLocaleString([], {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-gray-400 whitespace-nowrap bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                      {new Date(message.created_at).toLocaleString([], {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                    <button
+                      onClick={() => handleDelete(message.id)}
+                      disabled={deleting === message.id}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      {deleting === message.id ? (
+                        <svg className="animate-spin h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="mt-3 bg-green-50/50 rounded-xl p-4 border border-green-50">
                   <p className="text-gray-700 leading-relaxed">{message.message}</p>
