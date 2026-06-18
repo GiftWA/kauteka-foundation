@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import DeleteModal from "@/components/DeleteModal";
 
 export default function AdminPage() {
   const [messages, setMessages] = useState([]);
@@ -10,10 +11,12 @@ export default function AdminPage() {
   const [error, setError] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is authenticated
     const checkAuth = async () => {
       try {
         const res = await fetch("/api/admin-check");
@@ -21,8 +24,6 @@ export default function AdminPage() {
           router.push("/admin/login");
           return;
         }
-        
-        // Fetch messages
         await fetchMessages();
       } catch (err: any) {
         setError(err.message);
@@ -30,7 +31,6 @@ export default function AdminPage() {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, [router]);
 
@@ -49,16 +49,12 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
-    
     setIsLoggingOut(true);
     try {
-      const res = await fetch("/api/admin-logout", {
+      await fetch("/api/admin-logout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-      
       window.location.href = "/admin/login";
     } catch (error) {
       console.error("Error during logout:", error);
@@ -69,18 +65,12 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this message?")) {
-      return;
-    }
-
     setDeleting(id);
     try {
       const res = await fetch(`/api/admin-messages?id=${id}`, {
         method: "DELETE",
       });
-
       if (res.ok) {
-        // Remove the message from the list
         setMessages(messages.filter((msg: any) => msg.id !== id));
       } else {
         alert("Failed to delete message");
@@ -94,19 +84,10 @@ export default function AdminPage() {
   };
 
   const handleDeleteAll = async () => {
-    if (!confirm("Are you sure you want to delete ALL messages? This cannot be undone!")) {
-      return;
-    }
-
-    if (!confirm("Really? Delete all messages?")) {
-      return;
-    }
-
     try {
       const res = await fetch("/api/admin-messages", {
         method: "DELETE",
       });
-
       if (res.ok) {
         setMessages([]);
       } else {
@@ -115,6 +96,18 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Error deleting all messages:", error);
       alert("An error occurred while deleting");
+    }
+  };
+
+  const openDeleteModal = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      handleDelete(deleteTarget.id);
+      setDeleteTarget(null);
     }
   };
 
@@ -168,7 +161,7 @@ export default function AdminPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <div className="text-sm text-gray-500">
               {new Date().toLocaleDateString([], { 
                 weekday: 'short', 
@@ -179,7 +172,7 @@ export default function AdminPage() {
             </div>
             {messages?.length > 0 && (
               <button
-                onClick={handleDeleteAll}
+                onClick={() => setShowDeleteAllModal(true)}
                 className="px-4 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-xl transition-colors font-medium"
               >
                 Delete All
@@ -233,7 +226,7 @@ export default function AdminPage() {
                       })}
                     </span>
                     <button
-                      onClick={() => handleDelete(message.id)}
+                      onClick={() => openDeleteModal(message.id, message.name || "Anonymous")}
                       disabled={deleting === message.id}
                       className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
                     >
@@ -258,6 +251,29 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Modal */}
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteTarget(null);
+        }}
+        onConfirm={confirmDelete}
+        title={`Delete message from ${deleteTarget?.name || "Anonymous"}?`}
+        message="This message will be permanently removed from your inbox."
+        isDeletingAll={false}
+      />
+
+      {/* Delete All Modal */}
+      <DeleteModal
+        isOpen={showDeleteAllModal}
+        onClose={() => setShowDeleteAllModal(false)}
+        onConfirm={handleDeleteAll}
+        title="Delete All Messages?"
+        message="All messages will be permanently removed from your inbox."
+        isDeletingAll={true}
+      />
     </div>
   );
 }
