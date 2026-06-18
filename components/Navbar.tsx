@@ -1,31 +1,37 @@
 "use client";
 
 import DonateModal from "./DonateModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
-  const linkClass = (path: string) =>
-    pathname === path
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const linkClass = (path: string) => {
+    if (!mounted) return "text-gray-700 hover:text-emerald-700";
+    
+    return pathname === path
       ? "text-emerald-700 font-semibold"
       : "text-gray-700 hover:text-emerald-700";
+  };
 
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <>
-      {/* Donate Modal */}
       <DonateModal open={donateOpen} onClose={() => setDonateOpen(false)} />
 
       <header className="w-full bg-[#F6EACB] shadow-sm sticky top-0 z-40">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           
-          {/* Logo */}
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
@@ -37,7 +43,6 @@ export default function Navbar() {
             </span>
           </div>
 
-          {/* Desktop Links */}
           <div className="hidden md:flex gap-8 font-medium">
             <Link href="/" className={linkClass("/")}>Home</Link>
             <Link href="/about" className={linkClass("/about")}>About Us</Link>
@@ -45,10 +50,9 @@ export default function Navbar() {
             <Link href="/contact" className={linkClass("/contact")}>Contact</Link>
           </div>
 
-          {/* Desktop Donate */}
           <div className="hidden md:block">
             <button
-              onClick={() => setDonateOpen(true)}
+               onClick={() => setDonateOpen(true)}
               className="bg-black text-white px-5 py-2 rounded-lg hover:bg-teal-700 transition"
             >
               Donate
