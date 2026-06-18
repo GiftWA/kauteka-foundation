@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -22,9 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.className}>
-      <body className="bg-[#F6EACB] text-gray-900 antialiased">
+      <body className="bg-[#F6EACB] text-gray-900 antialiased text-base leading-relaxed">
         <Navbar />
-        {children}
+        <main className="text-base">{children}</main>
         <Footer />
       </body>
     </html>

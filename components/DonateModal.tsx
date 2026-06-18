@@ -41,9 +41,9 @@ export default function DonateModal({ open, onClose }: DonateModalProps) {
         </p>
 
         <div className="space-y-3 text-sm text-gray-700">
-          <p><strong>Bank:</strong> ABC Bank</p>
+          <p><strong>Bank:</strong> FDH Bank</p>
           <p><strong>Account Name:</strong> Kauteka Foundation</p>
-          <p><strong>Account Number:</strong> 123456789</p>
+          <p><strong>Account Number:</strong>1470000072028</p>
         </div>
 
         <button
